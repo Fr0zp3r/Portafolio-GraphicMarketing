@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Julio Morcillo - Diseñador especializado en identidad visual, experiencias digitales y estrategias de contenido. Mérida, México.">
+    <meta name="keywords" content="diseño, branding, UI/UX, identidad visual, diseñador, México, Mérida, portfolio">
+    <meta name="author" content="Julio Morcillo">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#57f1e7">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://juliomorcillo.com/">
+    <meta property="og:title" content="Julio Morcillo - Diseñador">
+    <meta property="og:description" content="Sistemas visuales claros, funcionales y estéticamente atractivos.">
+    <meta property="og:image" content="https://i.imgur.com/87VilOg.png">
+    <meta property="og:locale" content="es_MX">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://juliomorcillo.com/">
+    <meta property="twitter:title" content="Julio Morcillo - Portafolio">
+    <meta property="twitter:description" content="Diseñador Visual | Mérida, México">
+    <meta property="twitter:image" content="https://i.imgur.com/87VilOg.png">
+    
+    <link rel="canonical" href="https://juliomorcillo.com/">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>◈</text></svg>">
+    
+    <title>Julio Morcillo - Portafolio</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Julio Morcillo",
+        "jobTitle": "Diseñador",
+        "url": "https://juliomorcillo.com",
+        "sameAs": [
+            "https://behance.net/juliomorcillo",
+            "https://linkedin.com/in/juliomorcillo"
+        ],
+        "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Mérida",
+            "addressRegion": "Yucatán",
+            "addressCountry": "MX"
+        },
+        "email": "julioerty@gmail.com"
+    }
+    </script>
+    
+    <!-- External CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main id="monitor">
+        <section id="screen" aria-label="Portfolio Display">
+            <div id="welcome-screen">
+                <h1 id="welcome-title" class="decrypt-text" data-value="JULIO MORCILLO">JULIO MORCILLO</h1>
+                <p id="welcome-subtitle" class="decrypt-text" data-value="BIENVENIDO A MI PORTAFOLIO">BIENVENIDO A MI PORTAFOLIO</p>
+                <div id="welcome-prompt-container">
+                    <span id="welcome-prompt" aria-hidden="true">></span>
+                    <button id="welcome-button" aria-label="Iniciar navegación del portafolio">
+                        <span class="btn-text">[ INICIAR ]</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div id="portfolio-layout" class="hidden">
+                <div class="layout-container">
+                    <div class="left-column">
+                        <nav id="panel-left" aria-label="Navegación principal"></nav>
+                        <div id="dynamic-display" class="dynamic-panel">
+                            <div class="ascii-container"></div>
+                            <div class="svg-placeholder" id="project-icon"></div>
+                            <canvas id="radar-chart" width="300" height="250"></canvas>
+                        </div>
+                    </div>
+                    <section id="panel-right" aria-label="Contenido del proyecto">
+                        <div class="breadcrumb" id="breadcrumb">
+                            <span class="breadcrumb-item">PORTAFOLIO</span>
+                            <span class="breadcrumb-separator">></span>
+                            <span class="breadcrumb-current"></span>
+                        </div>
+                        <div class="initial-loader">
+                            <span class="loader-text">CARGANDO...</span>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <div id="lightbox" class="hidden" aria-label="Vista ampliada de imagen">
+        <img id="lightbox-media" src="" alt="Vista ampliada">
+        <div class="lightbox-nav hidden">
+            <button class="lightbox-prev" aria-label="Imagen anterior">‹</button>
+            <button class="lightbox-next" aria-label="Imagen siguiente">›</button>
+        </div>
+        <button id="lightbox-close" aria-label="Cerrar vista ampliada">×</button>
+    </div>
+    
+    <!-- UI Elements -->
+    <div id="mute-button-container"></div>
+    <div id="nav-hint-container"></div>
+    
+    <!-- External JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>
