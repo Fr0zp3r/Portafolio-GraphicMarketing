@@ -1433,24 +1433,33 @@ a:focus-visible {
 @media (max-width: 768px) {
     body {
         font-size: 18px;
-        padding: 10px;
+        /* Elimina el padding para que el monitor ocupe toda la pantalla */
+        padding: 0; 
     }
     
     #monitor {
-        padding: 20px;
-        aspect-ratio: auto;
+        /* Hacemos que el monitor ocupe el 100% del alto y ancho */
+        width: 100%;
         min-height: 100vh;
-        border-radius: 10px;
+        /* Eliminamos el aspect-ratio para que no se deforme en pantallas altas */
+        aspect-ratio: auto; 
+        /* Reducimos el padding interno en móvil */
+        padding: 15px;
+        border-radius: 0; /* Bordes rectos en móvil para una sensación de app */
+        border: none;
     }
     
     #screen {
-        padding: 15px;
+        padding: 10px;
     }
     
+    /* Esta es la magia principal: cambiamos la dirección del layout */
     .layout-container {
-        flex-direction: column;
+        /* Apila los elementos verticalmente en lugar de horizontalmente */
+        flex-direction: column; 
     }
     
+    /* Hacemos que ambas columnas ocupen el 100% del ancho */
     .left-column,
     #panel-right {
         width: 100%;
@@ -1461,11 +1470,18 @@ a:focus-visible {
     #panel-left {
         flex-shrink: 0; 
         margin-bottom: 20px;
+        /* Añadimos un borde inferior para separar las secciones en móvil */
         border-bottom: 1px solid #333;
         padding-bottom: 20px;
     }
     
+    .dynamic-panel {
+        /* Reducimos la altura mínima del panel dinámico en móviles */
+        min-height: 280px;
+    }
+
     .services-grid {
+        /* Aseguramos que las tarjetas de servicio se vean bien */
         grid-template-columns: repeat(2, 1fr);
     }
     
@@ -1478,6 +1494,7 @@ a:focus-visible {
         font-size: 0.8rem;
     }
     
+    /* Ajustes para la galería de imágenes */
     .gallery-item {
         aspect-ratio: 1;
     }
@@ -1491,10 +1508,12 @@ a:focus-visible {
     }
     
     .modal-content {
+        /* Hacemos el modal más adaptable al ancho del móvil */
         margin: 20px;
         padding: 30px 20px;
     }
     
+    /* Ajustes para el visor de imágenes (Lightbox) */
     #lightbox-media {
         max-width: 95%;
         max-height: 80%;
