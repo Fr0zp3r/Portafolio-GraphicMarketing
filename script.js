@@ -1,38 +1,62 @@
-// Enhanced Sound System con mejor gestión de memoria
+// =================================================================================
+// Sound System Manager
+// =================================================================================
+// Gestiona la creación y reproducción de todos los efectos de sonido de la aplicación
+// utilizando la Web Audio API de forma procedural. Esto evita la necesidad de cargar
+// archivos de audio, manteniendo la aplicación ligera y rápida.
+// La inicialización es diferida hasta la primera interacción del usuario.
+// =================================================================================
+
 class SoundSystem {
+    /**
+     * @constructor
+     * Inicializa las propiedades por defecto del sistema de sonido.
+     */
     constructor() {
         this.audioContext = null;
         this.masterGainNode = null;
         this.sounds = {};
         this.initialized = false;
         this.isMuted = false;
-        this.volume = 0.2;
+        this.volume = 0.2; // Volumen general bajo para no ser intrusivo.
     }
     
+    /**
+     * Inicializa el AudioContext y todos los nodos de audio necesarios.
+     * Este método se ejecuta una sola vez para prevenir la creación de múltiples
+     * contextos de audio. Es invocado por la primera interacción del usuario.
+     * @async
+     */
     async init() {
         if (this.initialized) return;
         
         try {
+            // Se asegura la compatibilidad con navegadores más antiguos.
             this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
             this.masterGainNode = this.audioContext.createGain();
             this.masterGainNode.gain.value = this.isMuted ? 0 : this.volume;
             this.masterGainNode.connect(this.audioContext.destination);
             
+            // Genera y almacena todos los sonidos proceduralmente al iniciar.
             this.sounds = {
                 boot: this.createBootSound(),
                 click: this.createClickSound(),
                 hover: this.createHoverSound(),
                 transition: this.createTransitionSound(),
-                open: this.createClickSound(),
-                close: this.createClickSound()
+                open: this.createClickSound(),    // Reutiliza el sonido de clic para consistencia.
+                close: this.createClickSound()   // Reutiliza el sonido de clic.
             };
             
             this.initialized = true;
         } catch (error) {
-            console.error('Audio initialization failed:', error);
+            console.error('La inicialización del sistema de audio ha fallado:', error);
         }
     }
 
+    /**
+     * Libera los recursos del AudioContext para una gestión de memoria adecuada.
+     * Esencial para llamar cuando la página se va a descargar (unload).
+     */
     cleanup() {
         if (this.audioContext) {
             this.audioContext.close();
@@ -43,9 +67,14 @@ class SoundSystem {
         }
     }
 
+    /**
+     * Alterna el estado de silencio (mute) del audio.
+     * @returns {boolean} El nuevo estado de mute.
+     */
     toggleMute() {
         this.isMuted = !this.isMuted;
         if (this.masterGainNode) {
+            // `setValueAtTime` es preferible para cambios de audio precisos.
             this.masterGainNode.gain.setValueAtTime(
                 this.isMuted ? 0 : this.volume,
                 this.audioContext.currentTime
@@ -54,6 +83,11 @@ class SoundSystem {
         return this.isMuted;
     }
     
+    /**
+     * Crea el sonido de arranque (boot).
+     * Combina dos osciladores para un sonido más complejo y rico.
+     * @returns {Function} Una función que, al ser llamada, reproduce el sonido.
+     */
     createBootSound() {
         return () => {
             if (this.isMuted || !this.audioContext) return;
@@ -64,9 +98,12 @@ class SoundSystem {
             
             osc1.frequency.setValueAtTime(100, this.audioContext.currentTime);
             osc1.frequency.exponentialRampToValueAtTime(400, this.audioContext.currentTime + 0.2);
-            osc2.type = 'sawtooth';
+            
+            osc2.type = 'sawtooth'; // Diente de sierra para un sonido más "retro-digital".
             osc2.frequency.setValueAtTime(200, this.audioContext.currentTime);
             osc2.frequency.exponentialRampToValueAtTime(800, this.audioContext.currentTime + 0.2);
+            
+            // Envolvente de volumen: un rápido fade-in y un fade-out más lento.
             gain.gain.setValueAtTime(0, this.audioContext.currentTime);
             gain.gain.linearRampToValueAtTime(0.2, this.audioContext.currentTime + 0.05);
             gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.5);
@@ -77,11 +114,16 @@ class SoundSystem {
             
             osc1.start();
             osc2.start();
+            // Limpieza automática de los osciladores una vez que terminan.
             osc1.stop(this.audioContext.currentTime + 0.5);
             osc2.stop(this.audioContext.currentTime + 0.5);
         };
     }
     
+    /**
+     * Crea un sonido de clic agudo y corto.
+     * @returns {Function} Una función que, al ser llamada, reproduce el sonido.
+     */
     createClickSound() {
         return () => {
             if (this.isMuted || !this.audioContext) return;
@@ -89,11 +131,12 @@ class SoundSystem {
             const osc = this.audioContext.createOscillator();
             const gain = this.audioContext.createGain();
             
-            osc.type = 'triangle';
+            osc.type = 'triangle'; // Un tono más suave que 'square'.
             osc.frequency.setValueAtTime(800, this.audioContext.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(400, this.audioContext.currentTime + 0.05);
+            osc.frequency.exponentialRampToValueAtTime(400, this.audioContext.currentTime + 0.05); // Pitch-down rápido.
+            
             gain.gain.setValueAtTime(0.3, this.audioContext.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.1);
+            gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.1); // Decaimiento rápido.
             
             osc.connect(gain);
             gain.connect(this.masterGainNode);
@@ -103,6 +146,10 @@ class SoundSystem {
         };
     }
     
+    /**
+     * Crea un sonido sutil y breve para el evento hover.
+     * @returns {Function} Una función que, al ser llamada, reproduce el sonido.
+     */
     createHoverSound() {
         return () => {
             if (this.isMuted || !this.audioContext) return;
@@ -111,7 +158,8 @@ class SoundSystem {
             const gain = this.audioContext.createGain();
             
             osc.frequency.setValueAtTime(1200, this.audioContext.currentTime);
-            osc.type = 'sine';
+            osc.type = 'sine'; // Tono puro para un efecto discreto.
+            
             gain.gain.setValueAtTime(0, this.audioContext.currentTime);
             gain.gain.linearRampToValueAtTime(0.05, this.audioContext.currentTime + 0.01);
             gain.gain.linearRampToValueAtTime(0, this.audioContext.currentTime + 0.05);
@@ -124,19 +172,25 @@ class SoundSystem {
         };
     }
 
+    /**
+     * Crea un sonido de "swoosh" para transiciones de contenido.
+     * @returns {Function} Una función que, al ser llamada, reproduce el sonido.
+     */
     createTransitionSound() {
         return () => {
             if (this.isMuted || !this.audioContext) return;
             
             const osc = this.audioContext.createOscillator();
             const gain = this.audioContext.createGain();
-            const filter = this.audioContext.createBiquadFilter();
+            const filter = this.audioContext.createBiquadFilter(); // Filtro para modelar el sonido.
             
             osc.type = 'sawtooth';
             osc.frequency.setValueAtTime(100, this.audioContext.currentTime);
             osc.frequency.exponentialRampToValueAtTime(300, this.audioContext.currentTime + 0.2);
+            
             filter.type = 'lowpass';
             filter.frequency.setValueAtTime(1000, this.audioContext.currentTime);
+            
             gain.gain.setValueAtTime(0.15, this.audioContext.currentTime);
             gain.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + 0.3);
             
@@ -149,18 +203,29 @@ class SoundSystem {
         };
     }
     
+    /**
+     * Reproduce un sonido específico a partir de su nombre.
+     * @param {string} soundName - El identificador del sonido a reproducir (ej. 'click').
+     */
     play(soundName) {
         if (!this.initialized || this.isMuted || !this.sounds[soundName]) return;
         
         try {
             this.sounds[soundName]();
         } catch (error) {
-            console.error('Sound playback error:', error);
+            console.error(`Error durante la reproducción del sonido '${soundName}':`, error);
         }
     }
 }
 
-// Portfolio Data
+// =================================================================================
+// Data Store
+// =================================================================================
+// Un único objeto que contiene toda la información de los proyectos y contenido.
+// Esto desacopla el contenido de la lógica de la aplicación, facilitando
+// futuras actualizaciones del portafolio.
+// =================================================================================
+
 const portfolioData = [
     {
         category: "Sobre Mí",
@@ -389,12 +454,21 @@ const portfolioData = [
     }
 ];
 
-// Main Application con mejoras de rendimiento y gestión de memoria
+// =================================================================================
+// Boot Sequence Controller
+// =================================================================================
+// Orquesta la animación de arranque inicial de la terminal.
+// Se adapta para ofrecer una experiencia más rápida en dispositivos móviles.
+// =================================================================================
 
 class BootSequence {
+    /**
+     * @constructor
+     */
     constructor() {
         this.isMobile = window.matchMedia('(max-width: 768px)').matches;
         
+        // Define secuencias de texto distintas para móvil y escritorio.
         this.bootLines = this.isMobile ? [
             { text: "SISTEMA JM_2025", class: "system", delay: 50 },
             { text: "VERIFICANDO... ", class: "loading", delay: 100 },
@@ -430,6 +504,10 @@ class BootSequence {
         this.skipButton = this.bootContainer.querySelector('.boot-skip-btn');
     }
     
+    /**
+     * Inicia la ejecución de la secuencia de arranque.
+     * @async
+     */
     async start() {
         this.welcomeScreen.classList.add('boot-hidden');
         this.cursor.classList.add('visible');
@@ -443,7 +521,6 @@ class BootSequence {
             if (this.skipButton) {
                 this.skipButton.style.animation = 'none';
                 this.skipButton.style.opacity = '1';
-                this.skipButton.style.color = 'var(--color-cyan)';
                 this.skipButton.innerHTML = '<span class="skip-text">[ SALTANDO... ]</span>';
                 this.skipButton.removeEventListener('click', skipSequence);
             }
@@ -475,6 +552,11 @@ class BootSequence {
         this.showWelcomeScreen();
     }
     
+    /**
+     * Escribe una línea de texto con efecto de tipeo.
+     * @param {object} lineData - El objeto que contiene el texto, clase y delay.
+     * @async
+     */
     async typeLine(lineData) {
         const lineElement = document.createElement('div');
         lineElement.className = `boot-line ${lineData.class}`;
@@ -504,6 +586,10 @@ class BootSequence {
         }
     }
     
+    /**
+     * Actualiza la posición del cursor de texto simulado.
+     * @param {HTMLElement} lineElement - El elemento de línea actual.
+     */
     updateCursorPosition(lineElement) {
         const rect = lineElement.getBoundingClientRect();
         const containerRect = this.bootContainer.getBoundingClientRect();
@@ -513,6 +599,12 @@ class BootSequence {
         this.cursor.style.top = `${rect.top - containerRect.top}px`;
     }
     
+    /**
+     * Calcula el ancho en píxeles de un texto dado.
+     * @param {string} text - El texto a medir.
+     * @param {HTMLElement} element - El elemento que contiene el texto para obtener su estilo.
+     * @returns {number} El ancho del texto en píxeles.
+     */
     getTextWidth(text, element) {
         const canvas = document.createElement('canvas');
         const context = canvas.getContext('2d');
@@ -521,22 +613,37 @@ class BootSequence {
         return context.measureText(text).width;
     }
     
+    /**
+     * Crea una pausa en la ejecución.
+     * @param {number} ms - Milisegundos a esperar.
+     * @returns {Promise}
+     */
     delay(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
     
+    /**
+     * Anima la desaparición del contenedor de arranque.
+     * @async
+     */
     async fadeOut() {
         this.bootContainer.style.animation = 'bootFadeOut 0.6s ease-out forwards';
         await this.delay(600);
         this.bootContainer.style.display = 'none';
     }
     
+    /**
+     * Muestra la pantalla de bienvenida e inicia la animación de "descifrado" de texto.
+     */
     showWelcomeScreen() {
         this.welcomeScreen.classList.remove('boot-hidden');
         this.welcomeScreen.style.display = 'flex';
         this.initDecryptAnimationFixed();
     }
     
+    /**
+     * Inicia la animación de texto tipo "descifrado".
+     */
     initDecryptAnimationFixed() {
         const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*";
         const elements = document.querySelectorAll('.decrypt-text');
@@ -573,7 +680,18 @@ class BootSequence {
     }
 }
 
+// =================================================================================
+// Main Application Controller
+// =================================================================================
+// Clase principal que orquesta toda la funcionalidad del portafolio,
+// incluyendo la gestión de estado, la navegación, el renderizado de contenido
+// y la respuesta a las interacciones del usuario.
+// =================================================================================
+
 class PortfolioApp {
+    /**
+     * @constructor
+     */
     constructor() {
         this.soundSystem = new SoundSystem();
         this.currentCategory = 0;
@@ -583,31 +701,45 @@ class PortfolioApp {
         this.currentImageIndex = 0;
         this.isMobile = window.matchMedia('(max-width: 768px)').matches;
         
-        // Cache de elementos DOM
+        // Caché de elementos del DOM para optimizar el rendimiento.
         this.domElements = {};
+        // Mapa para almacenar referencias a los event listeners para su posterior limpieza.
         this.eventListeners = new Map();
         
         this.initWithBoot();
     }
+
+    /**
+     * Lanza la secuencia de arranque y, al finalizar, inicializa la aplicación.
+     * @async
+     */
     async initWithBoot() {
     const bootSequence = new BootSequence();
     await bootSequence.start();
     this.init();
 }
     
+    /**
+     * Método de inicialización principal de la aplicación.
+     * @async
+     */
     async init() {
         this.cacheDOMElements();
         this.attachEventListeners();
         this.renderNavigation();
         this.addUiElements();
         
-        // Inicializar sonido en el primer clic
+        // El sonido se inicializa solo tras la primera interacción del usuario.
         document.addEventListener('click', () => this.soundSystem.init(), { once: true });
         
-        // Reproducir sonido de arranque después de un pequeño retraso
+        // Reproduce el sonido de arranque inicial.
         setTimeout(() => this.soundSystem.play('boot'), 500);
     }
     
+    /**
+     * Almacena referencias a los elementos del DOM más utilizados para evitar
+     * consultas repetitivas al DOM.
+     */
     cacheDOMElements() {
         const elementIds = [
             'welcome-screen', 'portfolio-layout', 'welcome-button',
@@ -625,15 +757,18 @@ class PortfolioApp {
         this.domElements.breadcrumb = document.querySelector('.breadcrumb-current');
     }
 
+    /**
+     * Centraliza la asignación de todos los event listeners de la aplicación.
+     */
     attachEventListeners() {
-        // Welcome button
+        // Botón de bienvenida
         this.addEventListenerWithCleanup(
             this.domElements['welcome-button'],
             'click',
             () => this.startPortfolio()
         );
         
-        // Lightbox
+        // Lightbox (cierre)
         this.addEventListenerWithCleanup(
             this.domElements['lightbox-close'],
             'click',
@@ -650,14 +785,14 @@ class PortfolioApp {
             }
         );
         
-        // Keyboard navigation
+        // Navegación por teclado
         this.addEventListenerWithCleanup(
             document,
             'keydown',
             (e) => this.handleKeyboard(e)
         );
         
-        // Window resize
+        // Detección de redimensionamiento de ventana (con debounce para optimizar).
         this.addEventListenerWithCleanup(
             window,
             'resize',
@@ -665,6 +800,8 @@ class PortfolioApp {
                 this.isMobile = window.matchMedia('(max-width: 768px)').matches;
             }, 250)
         );
+
+        // Delegación de eventos en el panel derecho para manejar clics en media.
         this.addEventListenerWithCleanup(
             this.domElements['panel-right'],
             'click',
@@ -672,12 +809,10 @@ class PortfolioApp {
                 const target = e.target;
                 const parent = target.parentElement;
                 
-                // Handle media container clicks
                 if (parent && parent.classList.contains('project-media-container')) {
                     this.openLightbox(parent.querySelector('.project-media'));
                 }
                 
-                // Handle gallery item clicks
                 const galleryItem = target.closest('.gallery-item');
                 if (galleryItem) {
                     const galleryItems = this.domElements['panel-right'].querySelectorAll('.gallery-item');
@@ -687,13 +822,11 @@ class PortfolioApp {
                     this.openLightbox(this.currentGalleryImages[index], true);
                 }
                 
-                // Handle brandbook preview
                 const brandbookPreview = target.closest('.brandbook-preview');
                 if (brandbookPreview) {
                     this.openLightbox(brandbookPreview.querySelector('img'));
                 }
                 
-                // Handle external links
                 if (target.classList.contains('external-link-btn')) {
                     e.preventDefault();
                     this.showExternalLinkWarning(target.dataset.url);
@@ -707,20 +840,28 @@ class PortfolioApp {
         );
     }
     
+    /**
+     * Un wrapper para `addEventListener` que también registra el listener
+     * para poder eliminarlo fácilmente más tarde.
+     * @param {EventTarget} element - El elemento del DOM.
+     * @param {string} event - El nombre del evento.
+     * @param {Function} handler - La función a ejecutar.
+     */
     addEventListenerWithCleanup(element, event, handler) {
         if (!element) return;
         
         element.addEventListener(event, handler);
         
-        // Store for cleanup
         if (!this.eventListeners.has(element)) {
             this.eventListeners.set(element, []);
         }
         this.eventListeners.get(element).push({ event, handler });
     }
     
+    /**
+     * Elimina todos los event listeners registrados para prevenir memory leaks.
+     */
     cleanup() {
-        // Remove all event listeners
         this.eventListeners.forEach((listeners, element) => {
             listeners.forEach(({ event, handler }) => {
                 element.removeEventListener(event, handler);
@@ -728,10 +869,15 @@ class PortfolioApp {
         });
         this.eventListeners.clear();
         
-        // Cleanup sound system
         this.soundSystem.cleanup();
     }
     
+    /**
+     * Utilidad para retrasar la ejecución de una función (evita llamadas excesivas en eventos como 'resize').
+     * @param {Function} func - La función a "debounc-ear".
+     * @param {number} wait - El tiempo de espera en milisegundos.
+     * @returns {Function} La nueva función con el debounce aplicado.
+     */
     debounce(func, wait) {
         let timeout;
         return function executedFunction(...args) {
@@ -744,6 +890,9 @@ class PortfolioApp {
         };
     }
     
+    /**
+     * Animación de "descifrado" de texto (versión inicial).
+     */
     initDecryptAnimation() {
         const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*";
         const elements = document.querySelectorAll('.decrypt-text');
@@ -776,8 +925,11 @@ class PortfolioApp {
         });
     }
 
+    /**
+     * Agrega elementos de UI flotantes como el botón de mute y la pista de navegación.
+     */
     addUiElements() {
-        // Mute Button
+        // Botón de Mute
         const muteButton = document.createElement('button');
         muteButton.id = 'mute-button';
         muteButton.setAttribute('aria-label', 'Silenciar sonido');
@@ -791,7 +943,7 @@ class PortfolioApp {
         
         this.domElements['mute-button-container'].appendChild(muteButton);
 
-        // Navigation Hint (desktop only)
+        // Pista de navegación (solo para escritorio)
         if (!this.isMobile) {
             const hint = document.createElement('div');
             hint.className = 'nav-hint';
@@ -800,6 +952,9 @@ class PortfolioApp {
         }
     }
     
+    /**
+     * Inicia la transición de la pantalla de bienvenida al layout principal del portafolio.
+     */
     startPortfolio() {
         this.soundSystem.play('click');
         this.domElements['welcome-screen'].style.animation = 'fadeOut 0.5s forwards';
@@ -819,6 +974,9 @@ class PortfolioApp {
         }, 500);
     }
     
+    /**
+     * Renderiza la navegación principal por categorías en el panel izquierdo.
+     */
     renderNavigation() {
         const fragment = document.createDocumentFragment();
         
@@ -836,7 +994,7 @@ class PortfolioApp {
         
         this.domElements['panel-left'].appendChild(fragment);
         
-        // Event delegation pa optimizar
+        // Se usa delegación de eventos para optimizar.
         this.addEventListenerWithCleanup(
             this.domElements['panel-left'],
             'mouseenter',
@@ -875,12 +1033,22 @@ class PortfolioApp {
         );
     }
     
+    /**
+     * Maneja el evento de clic en una categoría.
+     * @param {HTMLElement} el - El elemento de la categoría que recibió el clic.
+     * @param {number} index - El índice de la categoría.
+     */
     handleCategoryClick(el, index) {
         if (this.isTransitioning || el.classList.contains('active')) return;
         this.soundSystem.play('click');
         this.showCategoryContent(index, el);
     }
     
+    /**
+     * Actualiza el panel dinámico izquierdo (con arte ASCII, icono de proyecto o gráfico de radar).
+     * @param {object} data - Los datos de la categoría actual.
+     * @param {object|null} project - Los datos del proyecto actual (opcional).
+     */
     updateDynamicDisplay(data, project = null) {
         this.domElements.breadcrumb.textContent = project ? `${data.category} > ${project.title}` : data.category;
 
@@ -903,16 +1071,21 @@ class PortfolioApp {
         }
 
         const skillsToDraw = project?.skills;
-const projectRadarCanvas = this.domElements['radar-chart']; // El canvas de la izquierda
+        const projectRadarCanvas = this.domElements['radar-chart'];
 
-if (skillsToDraw) {
-    projectRadarCanvas.style.display = 'block';
-    this.drawRadarChart(projectRadarCanvas, skillsToDraw);
-} else {
-    projectRadarCanvas.style.display = 'none';
-}
+        if (skillsToDraw) {
+            projectRadarCanvas.style.display = 'block';
+            this.drawRadarChart(projectRadarCanvas, skillsToDraw);
+        } else {
+            projectRadarCanvas.style.display = 'none';
+        }
     }
     
+    /**
+     * Dibuja un gráfico de radar en un elemento canvas.
+     * @param {HTMLCanvasElement} canvasElement - El elemento canvas donde se dibujará.
+     * @param {object} skills - Un objeto con los nombres de las habilidades y sus valores.
+     */
     drawRadarChart(canvasElement, skills) {
     if (!canvasElement || !skills) return;
 
@@ -928,7 +1101,7 @@ if (skillsToDraw) {
     const skillValues = Object.values(skills);
     const angleStep = (Math.PI * 2) / skillNames.length;
 
-    // Dibujar la rejilla
+    // Dibuja la rejilla de fondo.
     ctx.strokeStyle = '#333';
     ctx.lineWidth = 1;
     
@@ -948,20 +1121,18 @@ if (skillsToDraw) {
         ctx.stroke();
     }
 
-    // Dibujar los ejes y etiquetas
+    // Dibuja los ejes y las etiquetas de las habilidades.
     ctx.font = '16px VT323';
     ctx.fillStyle = '#999';
     
     skillNames.forEach((skill, index) => {
         const angle = index * angleStep - Math.PI / 2;
         
-        // Eje
         ctx.beginPath();
         ctx.moveTo(centerX, centerY);
         ctx.lineTo(centerX + Math.cos(angle) * radius, centerY + Math.sin(angle) * radius);
         ctx.stroke();
 
-        // Etiqueta
         ctx.save();
         ctx.translate(centerX + Math.cos(angle) * (radius + 15), centerY + Math.sin(angle) * (radius + 15));
         ctx.rotate(angle + Math.PI / 2);
@@ -970,7 +1141,7 @@ if (skillsToDraw) {
         ctx.restore();
     });
 
-    // Dibujar los datos
+    // Dibuja el polígono de datos de las habilidades.
     ctx.beginPath();
     ctx.strokeStyle = '#57f1e7';
     ctx.fillStyle = 'rgba(87, 241, 231, 0.2)';
@@ -991,6 +1162,11 @@ if (skillsToDraw) {
     ctx.stroke();
 }
     
+    /**
+     * Muestra el contenido de una categoría seleccionada, manejando la transición.
+     * @param {number} index - El índice de la categoría en `portfolioData`.
+     * @param {HTMLElement} activeEl - El elemento del DOM de la categoría que se activó.
+     */
     showCategoryContent(index, activeEl) {
         if (this.isTransitioning) return;
         this.isTransitioning = true;
@@ -998,11 +1174,9 @@ if (skillsToDraw) {
         this.currentCategory = index;
         this.currentProject = 0;
 
-        // Update active states
         document.querySelectorAll('.nav-category').forEach(el => el.classList.remove('active'));
         activeEl.classList.add('active');
         
-        // Remove existing project lists
         document.querySelectorAll('.nav-project-list').forEach(list => list.remove());
 
         const data = portfolioData[index];
@@ -1030,8 +1204,10 @@ if (skillsToDraw) {
         }, 300);
     }
     
-    // CÓDIGO CORREGIDO
-initializeTabs() {
+    /**
+     * Inicializa los listeners para la navegación por pestañas (tabs).
+     */
+    initializeTabs() {
     const tabButtons = document.querySelectorAll('.tab-button');
     const tabContents = document.querySelectorAll('.tab-content');
     
@@ -1039,7 +1215,6 @@ initializeTabs() {
         this.addEventListenerWithCleanup(button, 'click', () => {
             const targetTab = button.dataset.tab;
             
-            // Actualiza estados
             tabButtons.forEach(btn => btn.classList.remove('active'));
             tabContents.forEach(content => content.classList.remove('active'));
             
@@ -1049,7 +1224,7 @@ initializeTabs() {
                 targetContent.classList.add('active');
             }
             
-            // Si la pestaña activada es "Skills", dibuja el radar.
+            // Si la pestaña activada es "Skills", se dibuja el gráfico.
             if (targetTab === 'skills') {
                 this.drawSkillsRadar();
             }
@@ -1059,8 +1234,10 @@ initializeTabs() {
     });
 }
     
+    /**
+     * Dibuja el gráfico de radar de habilidades principal.
+     */
     drawSkillsRadar() {
-    // Buscamos el canvas específico de la pestaña "Skills"
     const canvas = document.getElementById('skills-radar');
     if (!canvas) return;
     
@@ -1073,10 +1250,14 @@ initializeTabs() {
         "Motion Graphics": 50
     };
     
-    // Llamamos a la función generalizada pasándole el canvas correcto
     this.drawRadarChart(canvas, skills);
 }
     
+    /**
+     * Renderiza la lista de proyectos bajo una categoría.
+     * @param {HTMLElement} categoryEl - El elemento de la categoría padre.
+     * @param {Array<object>} projects - El array de proyectos a renderizar.
+     */
     renderProjectList(categoryEl, projects) {
         const listEl = document.createElement('div');
         listEl.className = 'nav-project-list';
@@ -1098,7 +1279,7 @@ initializeTabs() {
         listEl.appendChild(fragment);
         categoryEl.after(listEl);
         
-        // Use event delegation
+        // Delegación de eventos para los proyectos.
         this.addEventListenerWithCleanup(listEl, 'mouseenter', (e) => {
             if (e.target.classList.contains('nav-project')) {
                 this.soundSystem.play('hover');
@@ -1121,10 +1302,17 @@ initializeTabs() {
         });
     }
     
+    /**
+     * Selecciona un proyecto, actualiza la UI y renderiza sus detalles.
+     * @param {HTMLElement} projectEl - El elemento del proyecto seleccionado.
+     * @param {object} project - Los datos del proyecto.
+     * @param {number} index - El índice del proyecto.
+     * @param {number} categoryIndex - El índice de la categoría padre.
+     * @param {boolean} [playSound=true] - Indica si se debe reproducir un sonido.
+     */
     selectProject(projectEl, project, index, categoryIndex, playSound = true) {
         if (playSound) this.soundSystem.play('click');
 
-        // Update active states
         document.querySelectorAll('.nav-project').forEach(p => p.classList.remove('active'));
         projectEl.classList.add('active');
         this.currentProject = index;
@@ -1133,7 +1321,7 @@ initializeTabs() {
         this.renderProjectDetails(project);
         this.domElements['panel-right'].scrollTop = 0;
         
-        // Smooth scroll on mobile
+        // Scroll suave en móvil para mostrar el contenido.
         if (this.isMobile) {
             setTimeout(() => {
                 this.domElements['panel-right'].scrollIntoView({ 
@@ -1144,6 +1332,10 @@ initializeTabs() {
         }
     }
     
+    /**
+     * Renderiza el contenido estático (como la sección "Sobre Mí").
+     * @param {string} content - El contenido HTML a renderizar.
+     */
     renderStaticContent(content) {
         this.domElements['panel-right'].innerHTML = `<div class="project-content">${content}</div>`;
         this.initializeTabs();
@@ -1153,8 +1345,12 @@ initializeTabs() {
         }
     }
     
+    /**
+     * Renderiza el HTML detallado de un proyecto en el panel derecho.
+     * @param {object} project - Los datos del proyecto a renderizar.
+     */
     renderProjectDetails(project) {
-        // Build media HTML
+        // Construye el HTML para los diferentes tipos de media.
         let mediaHTML = '';
         
         if (project.gallery?.length) {
@@ -1217,8 +1413,6 @@ initializeTabs() {
         </div>
     `;
 }
-
-        // External link
         const externalLinkHTML = project.externalLink ? `
             <div class="external-link-container">
                 <button class="external-link-btn" data-url="${project.externalLink}">
@@ -1227,7 +1421,7 @@ initializeTabs() {
             </div>
         ` : '';
         
-        // Meta information
+        // Construye el HTML para la metainformación.
         const metaItems = ['año', 'cliente', 'plataforma', 'alcance']
             .filter(key => project[key])
             .map(key => `
@@ -1239,7 +1433,7 @@ initializeTabs() {
             
         const metaHTML = metaItems ? `<div class="project-meta">${metaItems}</div>` : '';
 
-        // Project details
+        // Construye el HTML para los bloques de detalle.
         const detailsHTML = ['desafio', 'solución', 'resultado']
             .filter(key => project[key])
             .map(key => `
@@ -1249,7 +1443,7 @@ initializeTabs() {
                 </div>
             `).join('');
         
-        // Render everything
+        // Renderiza todo el contenido en el panel derecho.
         this.domElements['panel-right'].innerHTML = `
             <div class="project-content">
                 <h2>${project.title}</h2>
@@ -1263,62 +1457,111 @@ initializeTabs() {
         this.setupMediaHandlers();
     }
     
+    /**
+     * Prepara los manejadores de eventos para la media recién renderizada.
+     */
     setupMediaHandlers() {
         this.currentGalleryImages = [];
-        
     }
     
+    /**
+     * Abre el lightbox para mostrar una imagen o video.
+     * @param {HTMLImageElement|HTMLVideoElement} mediaEl - El elemento multimedia a mostrar.
+     * @param {boolean} [isGallery=false] - Indica si la imagen forma parte de una galería navegable.
+     */
     openLightbox(mediaEl, isGallery = false) {
-        if (!mediaEl) return;
-        
-        this.soundSystem.play('open');
-        
-        // Remove existing media
-        const existingMedia = this.domElements['lightbox'].querySelector('#lightbox-media');
-        if (existingMedia) {
-            existingMedia.remove();
-        }
-        
-        // Create new media element
-        const newMedia = mediaEl.tagName === 'VIDEO' 
-            ? document.createElement('video') 
-            : document.createElement('img');
-            
-        newMedia.id = 'lightbox-media';
-        newMedia.src = mediaEl.src;
-        
-        if (newMedia.tagName === 'VIDEO') {
-            newMedia.controls = true;
-            newMedia.autoplay = true;
-        } else {
-            newMedia.alt = mediaEl.alt;
-        }
-        
-        this.domElements['lightbox'].insertBefore(newMedia, this.domElements['lightbox-close']);
-        
-        // Handle navigation visibility
-        const nav = this.domElements['lightbox'].querySelector('.lightbox-nav');
-        const shouldShowNav = isGallery && this.currentGalleryImages.length > 1;
-        nav.classList.toggle('hidden', !shouldShowNav);
-        
-        if (shouldShowNav) {
-            this.setupLightboxNavigation();
-            
-            // Add touch gestures for mobile
-            if (this.isMobile) {
-                this.setupTouchGestures(newMedia);
-            }
-        }
-        
-        this.domElements['lightbox'].classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
+    if (!mediaEl) return;
+    
+    this.soundSystem.play('open');
+    
+    // Limpia cualquier contenido previo del lightbox.
+    const existingContainer = this.domElements['lightbox'].querySelector('.lightbox-scroll-container');
+    if (existingContainer) {
+        existingContainer.remove();
     }
     
+    const existingMedia = this.domElements['lightbox'].querySelector('#lightbox-media');
+    if (existingMedia) {
+        existingMedia.remove();
+    }
+    
+    // Crea el nuevo elemento de media.
+    const newMedia = mediaEl.tagName === 'VIDEO' 
+        ? document.createElement('video') 
+        : document.createElement('img');
+        
+    newMedia.id = 'lightbox-media';
+    newMedia.src = mediaEl.src;
+    
+    if (newMedia.tagName === 'VIDEO') {
+        newMedia.controls = true;
+        newMedia.autoplay = true;
+        newMedia.alt = mediaEl.alt;
+        this.domElements['lightbox'].insertBefore(newMedia, this.domElements['lightbox-close']);
+    } else {
+        newMedia.alt = mediaEl.alt;
+        
+        // Detecta si la imagen es muy alta para añadir un contenedor con scroll.
+        newMedia.onload = function() {
+            const aspectRatio = this.naturalHeight / this.naturalWidth;
+            
+            if (aspectRatio > 1.5) { // Si es una imagen vertical
+                const scrollContainer = document.createElement('div');
+                scrollContainer.className = 'lightbox-scroll-container';
+                
+                const topIndicator = document.createElement('div');
+                topIndicator.className = 'scroll-indicator-top';
+                
+                const bottomIndicator = document.createElement('div');
+                bottomIndicator.className = 'scroll-indicator-bottom visible';
+                
+                this.style.maxHeight = 'none';
+                scrollContainer.appendChild(this);
+                scrollContainer.appendChild(topIndicator);
+                scrollContainer.appendChild(bottomIndicator);
+                
+                const lightbox = document.getElementById('lightbox');
+                const closeBtn = document.getElementById('lightbox-close');
+                lightbox.insertBefore(scrollContainer, closeBtn);
+                
+                // Maneja la visibilidad de los indicadores de scroll.
+                scrollContainer.addEventListener('scroll', function() {
+                    const { scrollTop, scrollHeight, clientHeight } = this;
+                    topIndicator.classList.toggle('visible', scrollTop > 10);
+                    bottomIndicator.classList.toggle('visible', scrollTop < scrollHeight - clientHeight - 10);
+                });
+            } else {
+                // Imagen normal, se inserta directamente.
+                const lightbox = document.getElementById('lightbox');
+                const closeBtn = document.getElementById('lightbox-close');
+                lightbox.insertBefore(this, closeBtn);
+            }
+        };
+    }
+    
+    const nav = this.domElements['lightbox'].querySelector('.lightbox-nav');
+    const shouldShowNav = isGallery && this.currentGalleryImages.length > 1;
+    nav.classList.toggle('hidden', !shouldShowNav);
+    
+    if (shouldShowNav) {
+        this.setupLightboxNavigation();
+        if (this.isMobile) {
+            this.setupTouchGestures(newMedia);
+        }
+    }
+    
+    this.domElements['lightbox'].classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+    
+    /**
+     * Configura los listeners para los botones de navegación del lightbox.
+     */
     setupLightboxNavigation() {
         const prevBtn = this.domElements['lightbox'].querySelector('.lightbox-prev');
         const nextBtn = this.domElements['lightbox'].querySelector('.lightbox-next');
         
-        // Clone to remove old event listeners
+        // Clona y reemplaza los botones para limpiar listeners antiguos.
         const newPrev = prevBtn.cloneNode(true);
         const newNext = nextBtn.cloneNode(true);
         prevBtn.parentNode.replaceChild(newPrev, prevBtn);
@@ -1335,6 +1578,10 @@ initializeTabs() {
         });
     }
     
+    /**
+     * Cambia la imagen mostrada en el lightbox.
+     * @param {number} direction - La dirección de la navegación (-1 para anterior, 1 para siguiente).
+     */
     navigateLightbox(direction) {
         this.soundSystem.play('click');
         const len = this.currentGalleryImages.length;
@@ -1354,6 +1601,10 @@ initializeTabs() {
         }
     }
     
+    /**
+     * Configura los gestos táctiles (swipe) para la navegación del lightbox en móviles.
+     * @param {HTMLElement} element - El elemento sobre el que se detectará el swipe.
+     */
     setupTouchGestures(element) {
         let touchStartX = 0;
         let touchEndX = 0;
@@ -1368,13 +1619,13 @@ initializeTabs() {
         };
         
         const handleSwipe = () => {
-            const swipeThreshold = 50;
+            const swipeThreshold = 50; // Mínimo de píxeles para considerar un swipe.
             const diff = touchEndX - touchStartX;
             
             if (Math.abs(diff) > swipeThreshold) {
-                if (diff > 0) {
+                if (diff > 0) { // Swipe hacia la derecha
                     this.navigateLightbox(-1);
-                } else {
+                } else { // Swipe hacia la izquierda
                     this.navigateLightbox(1);
                 }
             }
@@ -1384,6 +1635,10 @@ initializeTabs() {
         this.addEventListenerWithCleanup(element, 'touchend', handleTouchEnd, { passive: true });
     }
     
+    /**
+     * Cierra el lightbox.
+     * @param {Event} e - El evento que dispara el cierre.
+     */
     closeLightbox(e) {
         e.stopPropagation();
         this.soundSystem.play('close');
@@ -1391,6 +1646,10 @@ initializeTabs() {
         document.body.style.overflow = '';
     }
     
+    /**
+     * Muestra una advertencia modal antes de abrir un enlace externo.
+     * @param {string} url - La URL del enlace externo.
+     */
     showExternalLinkWarning(url) {
         this.soundSystem.play('open');
         
@@ -1432,6 +1691,10 @@ initializeTabs() {
         };
     }
     
+    /**
+     * Maneja la navegación por teclado para las categorías y proyectos.
+     * @param {KeyboardEvent} e - El evento del teclado.
+     */
     handleKeyboard(e) {
         const isLightboxOpen = !this.domElements['lightbox'].classList.contains('hidden');
 
@@ -1448,8 +1711,7 @@ initializeTabs() {
         
         if (this.domElements['portfolio-layout'].classList.contains('hidden')) return;
         
-        // Disable keyboard navigation on mobile
-        if (this.isMobile) return;
+        if (this.isMobile) return; // Deshabilita la navegación por teclado en móvil.
 
         const categories = [...document.querySelectorAll('.nav-category')];
         const activeCategory = document.querySelector('.nav-category.active');
@@ -1490,14 +1752,19 @@ initializeTabs() {
     }
 }
 
-// Initialize App when DOM is ready
+// =================================================================================
+// Application Initializer
+// =================================================================================
+// Se asegura de que la aplicación se instancie cuando el DOM esté listo
+// y de que se limpien los recursos (listeners) al salir de la página.
+// =================================================================================
+
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => new PortfolioApp());
 } else {
     new PortfolioApp();
 }
 
-// Cleanup on page unload
 window.addEventListener('beforeunload', () => {
     if (window.portfolioApp) {
         window.portfolioApp.cleanup();

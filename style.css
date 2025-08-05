@@ -1,5 +1,37 @@
+/**
+ * =============================================================================
+ * ARCHIVO DE ESTILOS PRINCIPAL
+ * Hoja de estilos para un portafolio con temática retro de terminal CRT.
+ *
+ * ESTRUCTURA DEL DOCUMENTO:
+ * 1. VARIABLES GLOBALES / SISTEMA DE DISEÑO
+ * 2. RESET Y ESTILOS BASE
+ * 3. EFECTOS GLOBALES (CRT)
+ * 4. LAYOUT PRINCIPAL (MONITOR, PANELES)
+ * 5. PANTALLA DE INICIO (BOOT Y WELCOME)
+ * 6. COMPONENTES DE UI
+ *    - Botones
+ *    - Navegación (Categorías, Proyectos, Breadcrumb, Tabs)
+ *    - Paneles Dinámicos y Loaders
+ *    - Contenido (About, Proyectos, Contacto)
+ *    - Elementos Multimedia (Galería, Stories, Lightbox)
+ *    - Modal
+ *    - Elementos Fijos (Mute, Hints)
+ * 7. UTILIDADES Y ACCESIBILIDAD
+ * 8. ANIMACIONES
+ * 9. MEDIA QUERIES Y DISEÑO RESPONSIVE
+ * =============================================================================
+ */
+
+/**
+ * =============================================================================
+ * § 1. VARIABLES GLOBALES / SISTEMA DE DISEÑO
+ * =============================================================================
+ * Definición de colores, tipografía, espaciados y otros valores reutilizables
+ * en todo el proyecto a través de CSS Custom Properties.
+ */
 :root {
-    /* Colores */
+    /* Paleta de Colores */
     --color-black: #1a1a1a;
     --color-dark: #0d0d0d;
     --color-cream: #f9f9d3;
@@ -26,22 +58,33 @@
     --transition-speed: 0.3s;
     --transition-easing: ease;
     
-    /* Efectos */
+    /* Efectos Visuales */
     --glow-intensity: 0px 0px 10px;
 }
 
-/* Reset y estilos base */
+/**
+ * =============================================================================
+ * § 2. RESET Y ESTILOS BASE
+ * =============================================================================
+ * Estilos para normalizar el comportamiento de los elementos en todos los
+ * navegadores y definir la configuración base del `body`.
+ */
+
+/* Reset básico para todos los elementos */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    /* Optimización de renderizado de imágenes para un look pixelado */
     image-rendering: -webkit-optimize-contrast;
     image-rendering: crisp-edges;
+    /* Desactivar el antialiasing de fuentes para un look retro */
     -webkit-font-smoothing: none;
     -moz-osx-font-smoothing: grayscale;
 }
 
 html {
+    /* Habilita el desplazamiento suave en toda la página */
     scroll-behavior: smooth;
 }
 
@@ -55,11 +98,18 @@ body {
     align-items: center;
     min-height: 100vh;
     padding: var(--space-lg);
-    overflow: hidden;
+    overflow: hidden; /* Evita el scroll en la vista de escritorio */
     position: relative;
 }
 
-/* CRT Effect */
+/**
+ * =============================================================================
+ * § 3. EFECTOS GLOBALES (CRT)
+ * =============================================================================
+ * Efectos visuales aplicados globalmente para simular una pantalla CRT.
+ */
+
+/* Efecto de líneas de escaneo (scanlines) sobre toda la pantalla */
 body::before {
     content: "";
     position: fixed;
@@ -74,11 +124,19 @@ body::before {
         transparent 1px,
         transparent 2px
     );
-    pointer-events: none;
+    pointer-events: none; /* Permite interactuar con lo que está debajo */
     z-index: 1;
 }
 
-/* Monitor Container */
+/**
+ * =============================================================================
+ * § 4. LAYOUT PRINCIPAL (MONITOR, PANELES)
+ * =============================================================================
+ * Define la estructura del contenedor principal que simula un monitor de PC
+ * y la pantalla interna.
+ */
+
+/* Contenedor que simula el marco de un monitor CRT */
 #monitor {
     width: 100%;
     max-width: 1200px;
@@ -88,26 +146,34 @@ body::before {
     border-radius: 20px;
     padding: var(--space-2xl);
     box-shadow: 
-        0 0 50px rgba(0, 0, 0, 0.5),
-        inset 0 0 15px #000,
-        0 0 100px rgba(87, 241, 231, 0.05);
+        0 0 50px rgba(0, 0, 0, 0.5), /* Sombra exterior */
+        inset 0 0 15px #000,          /* Sombra interior para dar profundidad */
+        0 0 100px rgba(87, 241, 231, 0.05); /* Brillo sutil de color cian */
     display: flex;
     position: relative;
-    z-index: 2;
+    z-index: 2; /* Por encima del efecto de scanlines */
 }
 
+/* "Pantalla" interna del monitor donde se muestra el contenido */
 #screen {
     width: 100%;
     height: 100%;
     background-color: var(--color-black);
     padding: var(--space-lg);
-    overflow: hidden;
+    overflow: hidden; /* Oculta el contenido que exceda la pantalla */
     position: relative;
     border-radius: 10px;
-    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5); /* Sombra para efecto de curvatura */
 }
 
-/* Welcome Screen */
+/**
+ * =============================================================================
+ * § 5. PANTALLA DE INICIO (BOOT Y WELCOME)
+ * =============================================================================
+ * Estilos para la secuencia de arranque y la pantalla de bienvenida inicial.
+ */
+
+/* Contenedor de la pantalla de bienvenida */
 #welcome-screen {
     display: flex;
     flex-direction: column;
@@ -115,14 +181,14 @@ body::before {
     align-items: center;
     height: 100%;
     text-align: center;
-    animation: bootUp 1.5s ease-out;
+    animation: bootUp 1.5s ease-out; /* Animación de encendido */
 }
 
 #welcome-title {
-    font-size: clamp(2rem, 10vw, 4rem);
+    font-size: clamp(2rem, 10vw, 4rem); /* Tamaño de fuente adaptable */
     margin-bottom: var(--space-xl);
     letter-spacing: 0.1em;
-    animation: titleGlow 2s ease-in-out infinite alternate;
+    animation: titleGlow 2s ease-in-out infinite alternate; /* Animación de brillo */
 }
 
 #welcome-subtitle {
@@ -132,11 +198,12 @@ body::before {
     letter-spacing: 0.05em;
 }
 
+/* Contenedor del prompt y botón para centrado */
 #welcome-prompt-container {
     display: flex;
     align-items: center;
     gap: var(--space-md);
-    animation: promptBlink 1s ease-in-out infinite;
+    animation: promptBlink 1s ease-in-out infinite; /* Animación de parpadeo */
 }
 
 #welcome-prompt {
@@ -144,7 +211,17 @@ body::before {
     color: var(--color-cyan);
 }
 
-/* Clase base para botones */
+/**
+ * =============================================================================
+ * § 6. COMPONENTES DE UI
+ * =============================================================================
+ */
+
+/* -----------------------------------------
+ * § 6.1. BOTONES
+ * ----------------------------------------- */
+
+/* Clase base para botones con efecto de hover */
 .btn-base,
 #welcome-button {
     font-family: var(--font-primary);
@@ -153,21 +230,22 @@ body::before {
     color: var(--color-cream);
     cursor: pointer;
     transition: all var(--transition-speed) var(--transition-easing);
-    position: relative;
-    overflow: hidden;
+    position: relative; /* Necesario para el pseudo-elemento */
+    overflow: hidden; /* Oculta el ::before fuera del botón */
 }
 
-/* Estilos específicos del welcome button */
+/* Estilos específicos del botón de bienvenida */
 #welcome-button {
     font-size: var(--font-size-large);
     padding: var(--space-sm) var(--space-lg);
 }
 
+/* Pseudo-elemento para el efecto de "llenado" en hover */
 #welcome-button::before {
     content: '';
     position: absolute;
     top: 0;
-    left: -100%;
+    left: -100%; /* Empieza fuera, a la izquierda */
     width: 100%;
     height: 100%;
     background: var(--color-cyan);
@@ -175,27 +253,34 @@ body::before {
     z-index: 1;
 }
 
+/* Estilos de hover para el botón */
 #welcome-button:hover {
-    color: var(--color-black);
+    color: var(--color-black); /* Cambia el color del texto */
     border-color: var(--color-cyan);
     box-shadow: var(--glow-intensity) var(--color-cyan);
 }
 
+/* En hover, el pseudo-elemento se desliza para cubrir el fondo */
 #welcome-button:hover::before {
     left: 0;
 }
 
+/* Efecto al hacer clic */
 #welcome-button:active {
     transform: scale(0.98);
 }
 
+/* Contenedor del texto para mantenerlo por encima del pseudo-elemento */
 .btn-text {
     position: relative;
     z-index: 2;
-    pointer-events: none;
+    pointer-events: none; /* Evita que el texto capture eventos del ratón */
 }
 
-/* Portfolio Layout */
+/* -----------------------------------------
+ * § 6.2. LAYOUT DEL PORTFOLIO
+ * ----------------------------------------- */
+
 #portfolio-layout {
     height: 100%;
     animation: fadeIn 0.5s ease-in;
@@ -214,6 +299,7 @@ body::before {
     gap: var(--space-lg);
 }
 
+/* Panel izquierdo (navegación) */
 #panel-left {
     flex: 1;
     border-right: 1px solid var(--color-gray-dark);
@@ -222,16 +308,17 @@ body::before {
     overflow-x: hidden;
 }
 
+/* Panel derecho (contenido) */
 #panel-right {
     width: 60%;
     overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-cyan) transparent;
+    scrollbar-width: thin; /* Para Firefox */
+    scrollbar-color: var(--color-cyan) transparent; /* Para Firefox */
     padding-right: var(--space-sm);
     position: relative;
 }
 
-/* Scrollbar Styles */
+/* Estilos de la barra de scroll para navegadores WebKit (Chrome, Safari) */
 #panel-right::-webkit-scrollbar {
     width: 5px;
 }
@@ -241,7 +328,11 @@ body::before {
     border-radius: 2px;
 }
 
-/* Loader */
+/* -----------------------------------------
+ * § 6.3. LOADER
+ * ----------------------------------------- */
+
+/* Loader inicial mientras carga el contenido */
 .initial-loader {
     display: flex;
     justify-content: center;
@@ -254,7 +345,11 @@ body::before {
     animation: pulse 1.5s ease-in-out infinite;
 }
 
-/* Navigation Styles */
+/* -----------------------------------------
+ * § 6.4. NAVEGACIÓN
+ * ----------------------------------------- */
+
+/* Estilo para cada categoría de navegación (e.g., "Proyectos") */
 .nav-category {
     display: flex;
     align-items: center;
@@ -265,6 +360,7 @@ body::before {
     position: relative;
 }
 
+/* Indicador visual (línea vertical) para la categoría activa */
 .nav-category::after {
     content: '';
     position: absolute;
@@ -272,31 +368,36 @@ body::before {
     top: 50%;
     transform: translateY(-50%);
     width: 2px;
-    height: 0;
+    height: 0; /* Empieza con altura 0 */
     background: var(--color-cyan);
     transition: height var(--transition-speed) var(--transition-easing);
 }
 
+/* La línea se expande cuando la categoría está activa */
 .nav-category.active::after {
     height: 100%;
 }
 
+/* Efecto de brillo y desplazamiento en hover */
 .nav-category:hover .category-name {
     text-shadow: var(--glow-intensity) var(--color-cyan);
     transform: translateX(3px);
 }
 
+/* Colorea el texto cuando la categoría está activa */
 .nav-category.active > .prompt,
 .nav-category.active .category-name {
     color: var(--color-cyan);
 }
 
+/* Lista de proyectos desplegable bajo una categoría */
 .nav-project-list {
     padding-left: var(--space-xl);
     animation: slideDown 0.3s ease-out;
     overflow: hidden;
 }
 
+/* Estilo para cada proyecto individual en la navegación */
 .nav-project {
     padding: 6px 0;
     cursor: pointer;
@@ -304,6 +405,7 @@ body::before {
     position: relative;
 }
 
+/* Símbolo '›' que aparece en hover */
 .nav-project::before {
     content: '›';
     position: absolute;
@@ -312,6 +414,7 @@ body::before {
     transition: all var(--transition-speed) var(--transition-easing);
 }
 
+/* Efectos de hover para un proyecto */
 .nav-project:hover {
     color: var(--color-cyan);
     padding-left: var(--space-xs);
@@ -322,12 +425,17 @@ body::before {
     left: -10px;
 }
 
+/* Estilo para el proyecto activo */
 .nav-project.active {
     color: var(--color-cyan);
     font-weight: bold;
 }
 
-/* Dynamic Panel */
+/* -----------------------------------------
+ * § 6.5. PANEL DINÁMICO (IZQUIERDA)
+ * ----------------------------------------- */
+
+/* Panel que muestra arte ASCII o iconos relacionados con la sección */
 .dynamic-panel {
     min-height: 350px;
     border: 1px solid var(--color-gray-dark);
@@ -341,6 +449,7 @@ body::before {
     overflow: hidden;
 }
 
+/* Efecto de rejilla sutil en el fondo del panel */
 .dynamic-panel::before {
     content: '';
     position: absolute;
@@ -366,6 +475,7 @@ body::before {
     pointer-events: none;
 }
 
+/* Contenedor para el arte ASCII */
 .ascii-container {
     flex-grow: 1;
     display: flex;
@@ -379,10 +489,11 @@ body::before {
     margin-bottom: var(--space-sm);
 }
 
+/* Placeholder para iconos SVG */
 .svg-placeholder {
     width: 100px;
     height: 100px;
-    display: none;
+    display: none; /* Oculto por defecto */
     animation: iconPulse 4s ease-in-out infinite;
     flex-shrink: 0;
     box-shadow: none !important;
@@ -394,6 +505,7 @@ body::before {
     fill: var(--color-cyan);
 }
 
+/* Icono de proyecto (imagen) */
 .project-icon-img {
     max-width: 80%;
     max-height: 180px;
@@ -401,9 +513,10 @@ body::before {
     margin: auto;
     object-fit: contain;
     animation: iconPulse 4s ease-in-out infinite;
-    box-shadow: none !important
+    box-shadow: none !important;
 }
 
+/* Gráfico de radar (Chart.js) */
 #radar-chart {
     max-width: 100%;
     height: auto;
@@ -412,7 +525,11 @@ body::before {
     flex-shrink: 0;
 }
 
-/* Breadcrumb Navigation */
+/* -----------------------------------------
+ * § 6.6. BREADCRUMB
+ * ----------------------------------------- */
+
+/* Navegación de migas de pan (e.g., Inicio > Proyectos > Mi Proyecto) */
 .breadcrumb {
     display: flex;
     align-items: center;
@@ -430,7 +547,11 @@ body::before {
     color: var(--color-cyan);
 }
 
-/* Tab Navigation */
+/* -----------------------------------------
+ * § 6.7. NAVEGACIÓN POR TABS
+ * ----------------------------------------- */
+
+/* Contenedor de las pestañas */
 .tab-navigation {
     display: flex;
     margin-bottom: var(--space-xl);
@@ -438,6 +559,7 @@ body::before {
     background: var(--color-dark);
 }
 
+/* Botón de cada pestaña */
 .tab-button {
     flex: 1;
     padding: var(--space-md);
@@ -452,6 +574,7 @@ body::before {
     text-align: center;
 }
 
+/* Separador vertical entre pestañas */
 .tab-button::before {
     content: '║';
     position: absolute;
@@ -461,10 +584,12 @@ body::before {
     color: var(--color-gray-dark);
 }
 
+/* El primer botón no necesita separador a la izquierda */
 .tab-button:first-child::before {
     content: '';
 }
 
+/* Línea inferior que indica la pestaña activa */
 .tab-button::after {
     content: '';
     position: absolute;
@@ -473,7 +598,7 @@ body::before {
     right: 0;
     height: 2px;
     background: var(--color-cyan);
-    transform: scaleX(0);
+    transform: scaleX(0); /* Empieza invisible */
     transition: transform var(--transition-speed) var(--transition-easing);
 }
 
@@ -486,20 +611,25 @@ body::before {
     background: rgba(87, 241, 231, 0.1);
 }
 
+/* La línea se expande cuando la pestaña está activa */
 .tab-button.active::after {
     transform: scaleX(1);
 }
 
+/* Contenido asociado a cada pestaña */
 .tab-content {
-    display: none;
+    display: none; /* Oculto por defecto */
     animation: fadeIn 0.3s ease-out;
 }
 
 .tab-content.active {
-    display: block;
+    display: block; /* Visible cuando está activo */
 }
 
-/* About Section */
+/* -----------------------------------------
+ * § 6.8. SECCIÓN "SOBRE MÍ" (ABOUT)
+ * ----------------------------------------- */
+
 .about-container {
     max-width: 800px;
     animation: fadeIn 0.5s ease-out;
@@ -510,10 +640,11 @@ body::before {
     padding-bottom: var(--space-xl);
     border-bottom: 1px solid var(--color-gray-dark);
 }
+
 .skills-visual {
     display: flex;
     justify-content: center;
-    margin: var(--space-xl) 0; /* Agrega un espacio vertical para que no quede pegado al título */
+    margin: var(--space-xl) 0;
 }
 
 .about-intro h2 {
@@ -529,7 +660,7 @@ body::before {
     opacity: 0.9;
 }
 
-/* Timeline */
+/* Componente de línea de tiempo (Timeline) */
 .timeline-container {
     position: relative;
     padding-left: var(--space-2xl);
@@ -579,7 +710,7 @@ body::before {
     line-height: 1.5;
 }
 
-/* Process Steps */
+/* Componente de Pasos del Proceso */
 .process-grid {
     display: grid;
     gap: var(--space-lg);
@@ -616,7 +747,7 @@ body::before {
     line-height: 1.5;
 }
 
-/* Tools Section */
+/* Sección de Herramientas (Tools) */
 .tools-section {
     margin-bottom: var(--space-2xl);
 }
@@ -641,7 +772,10 @@ body::before {
     transform: scale(1.05);
 }
 
-/* Contact Section */
+/* -----------------------------------------
+ * § 6.9. SECCIÓN DE CONTACTO
+ * ----------------------------------------- */
+
 .contact-section {
     background: rgba(87, 241, 231, 0.03);
     border: 1px solid var(--color-gray-dark);
@@ -669,7 +803,10 @@ body::before {
     min-width: 100px;
 }
 
-/* Project Content */
+/* -----------------------------------------
+ * § 6.10. CONTENIDO DE PROYECTOS
+ * ----------------------------------------- */
+
 .project-content h2 {
     color: var(--color-cyan);
     margin-bottom: var(--space-lg);
@@ -690,7 +827,7 @@ body::before {
     letter-spacing: 0.1em;
 }
 
-/* Project Meta Information */
+/* Metadatos del proyecto (cliente, año, etc.) */
 .project-meta {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -718,7 +855,11 @@ body::before {
     color: var(--color-cream);
 }
 
-/* Media Components */
+/* -----------------------------------------
+ * § 6.11. ELEMENTOS MULTIMEDIA
+ * ----------------------------------------- */
+
+/* Contenedor principal para video o imagen destacada */
 .project-media-container {
     width: 100%;
     aspect-ratio: 16 / 9;
@@ -743,7 +884,7 @@ body::before {
     background-color: #000;
 }
 
-/* Gallery Grid */
+/* Galería de imágenes del proyecto */
 .project-gallery {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -775,11 +916,12 @@ body::before {
     background-color: #000;
 }
 
+/* Ajuste específico para cuando hay exactamente 4 imágenes, para que se muestren 2x2 */
 .project-gallery:has(.gallery-item:nth-child(4):last-child) {
     grid-template-columns: repeat(2, 1fr);
 }
 
-/* Stories */
+/* Galería de "Stories" (videos verticales) */
 .stories-container {
     margin-top: var(--space-xl);
     margin-bottom: var(--space-lg);
@@ -816,11 +958,15 @@ body::before {
     object-fit: cover;
 }
 
-/* External Links */
+/* -----------------------------------------
+ * § 6.12. ENLACES EXTERNOS
+ * ----------------------------------------- */
+
 .external-link-container {
     margin: var(--space-lg) 0;
 }
 
+/* Estilo base para botones de enlaces externos */
 .external-link-btn,
 .external-video-link {
     display: inline-flex;
@@ -838,9 +984,8 @@ body::before {
     overflow: hidden;
     text-decoration: none;
 }
-/*  Código para equilibrar botones de video --- */
 
-
+/* Código para equilibrar botones de video */
 .youtube-link {
     margin-bottom: var(--space-sm);
 }
@@ -850,14 +995,12 @@ body::before {
 
 .external-video-link {
     display: flex;
-    
     width: 100%;
-    
     justify-content: center;
 }
-
 /* --- FIN: Código para equilibrar botones de video --- */
 
+/* Efecto de llenado en hover, similar al botón de bienvenida */
 .external-link-btn::before,
 .external-video-link::before {
     content: '';
@@ -881,7 +1024,11 @@ body::before {
     left: 0;
 }
 
-/* Modal */
+/* -----------------------------------------
+ * § 6.13. MODAL
+ * ----------------------------------------- */
+
+/* Capa oscura que cubre la pantalla */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -897,6 +1044,7 @@ body::before {
     backdrop-filter: blur(5px);
 }
 
+/* Contenido de la ventana modal */
 .modal-content {
     background: var(--color-black);
     border: 2px solid var(--color-cyan);
@@ -948,7 +1096,11 @@ body::before {
     box-shadow: 0 0 20px var(--color-cyan);
 }
 
-/* Lightbox */
+/* -----------------------------------------
+ * § 6.14. LIGHTBOX (VISOR DE IMÁGENES)
+ * ----------------------------------------- */
+
+/* Contenedor principal del lightbox, adaptable al contenido */
 #lightbox {
     position: fixed;
     top: 0;
@@ -963,31 +1115,59 @@ body::before {
     animation: fadeIn 0.3s;
     cursor: pointer;
     backdrop-filter: blur(5px);
+    padding: 60px; /* Espacio para los botones de navegación y cierre */
 }
 
+/* Elemento multimedia (imagen/video) dentro del lightbox */
 #lightbox-media {
-    max-width: 90%;
-    max-height: 90%;
-    object-fit: contain;
+    max-width: calc(100vw - 120px); /* Ancho máximo menos el padding */
+    max-height: calc(100vh - 80px); /* Alto máximo menos el padding */
+    width: auto;
+    height: auto;
+    object-fit: contain; /* Asegura que la imagen se vea completa */
     border: 2px solid var(--color-cyan);
     box-shadow: 0 0 50px var(--color-cyan);
     animation: zoomIn 0.3s ease-out;
+    display: block;
+    margin: auto;
 }
 
+/* Ajuste para imágenes cuadradas o apaisadas */
+#lightbox-media:not(.tall-image) {
+    max-width: min(90vw, 90vh); /* Limita por la dimensión más pequeña del viewport */
+}
+
+/* Ajustes para móvil */
+@media (max-width: 768px) {
+    #lightbox {
+        padding: 50px 10px;
+    }
+    
+    #lightbox-media {
+        max-width: calc(100vw - 80px);
+        max-height: calc(100vh - 100px);
+    }
+}
+
+/* ========== NAVEGACIÓN LIGHTBOX - COMPLETA ========== */
+
+/* Contenedor de los botones de navegación */
 .lightbox-nav {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* No interfiere con el clic para cerrar */
+}
+
+/* Estilo base para los botones de anterior/siguiente */
+.lightbox-prev,
+.lightbox-next {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    padding: 0 var(--space-2xl);
-    pointer-events: none;
-}
-
-.lightbox-prev,
-.lightbox-next {
-    pointer-events: all;
+    pointer-events: all; /* Sí son interactivos */
     background: rgba(0, 0, 0, 0.5);
     border: 1px solid var(--color-cream);
     color: var(--color-cream);
@@ -998,45 +1178,132 @@ body::before {
     border-radius: 50%;
     cursor: pointer;
     transition: all var(--transition-speed) var(--transition-easing);
+    user-select: none;
     display: flex;
     align-items: center;
     justify-content: center;
-    user-select: none;
+    line-height: 1;
 }
 
+/* Posiciones específicas */
+.lightbox-prev {
+    left: var(--space-2xl);
+}
+
+.lightbox-next {
+    right: var(--space-2xl);
+}
+
+/* Efecto hover sin mover los botones */
 .lightbox-prev:hover,
 .lightbox-next:hover {
     background: var(--color-cyan);
     color: var(--color-black);
     border-color: var(--color-cyan);
+    box-shadow: 0 0 20px var(--color-cyan);
 }
 
-#lightbox-close {
-    position: absolute;
-    top: var(--space-xl);
-    right: var(--space-2xl);
-    color: var(--color-cream);
-    font-size: 48px;
-    cursor: pointer;
-    transition: all var(--transition-speed) var(--transition-easing);
-    line-height: 1;
-    width: 50px;
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid transparent;
-    border-radius: 50%;
-    user-select: none;
+/* Efecto al hacer clic */
+.lightbox-prev:active,
+.lightbox-next:active {
+    transform: translateY(-50%) scale(0.95);
 }
 
-#lightbox-close:hover {
-    transform: rotate(90deg);
-    color: var(--color-cyan);
-    border-color: var(--color-cyan);
+/* ========== NAVEGACIÓN LIGHTBOX EN MÓVIL ========== */
+@media (max-width: 768px) {
+    /* Reseteo del contenedor de navegación para posicionamiento fijo */
+    .lightbox-nav {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        pointer-events: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        transform: none !important;
+    }
+    
+    /* Redefinición completa de los botones para móvil */
+    .lightbox-prev,
+    .lightbox-next {
+        position: fixed !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        width: 20px !important; /* Más estrechos y altos */
+        height: 100px !important;
+        background: #000000 !important;
+        border: 2px solid #57f1e7 !important;
+        color: #57f1e7 !important;
+        font-size: 24px !important;
+        border-radius: 0 !important; /* Rectangulares */
+        margin: 0 !important;
+        padding: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        pointer-events: all !important;
+        z-index: 150 !important;
+        cursor: pointer !important;
+    }
+    
+    /* Posiciones fijas en los bordes */
+    .lightbox-prev {
+        left: 0 !important;
+        right: auto !important;
+    }
+    
+    .lightbox-next {
+        right: 0 !important;
+        left: auto !important;
+    }
+    
+    /* Reducir el tamaño de la imagen para que no quede debajo de los botones */
+    #lightbox-media {
+        max-width: calc(100vw - 100px) !important;
+        position: relative !important;
+        z-index: 50 !important;
+    }
+    
+    .lightbox-scroll-container {
+        max-width: calc(100vw - 100px) !important;
+        margin: 0 auto !important;
+    }
+}
+/* ========== FIN NAVEGACIÓN LIGHTBOX ========== */
+
+/* Ajustar el contenido para dejar espacio a los botones laterales */
+#lightbox-media,
+.lightbox-scroll-container {
+    max-width: calc(100vw - 120px) !important;
+    margin: 0 auto;
 }
 
-/* UI Elements */
+/* Ajuste móvil adicional para botones */
+@media (max-width: 768px) {
+    .lightbox-prev,
+    .lightbox-next {
+        width: 35px;
+        height: 60px;
+        font-size: 1.5rem;
+    }
+    
+    #lightbox-media,
+    .lightbox-scroll-container {
+        max-width: calc(100vw - 90px) !important;
+    }
+}
+
+/* -----------------------------------------
+ * § 6.15. ELEMENTOS DE UI FIJOS
+ * ----------------------------------------- */
+
+/* Botón para silenciar/activar sonido */
 #mute-button {
     position: fixed;
     bottom: var(--space-lg);
@@ -1063,14 +1330,17 @@ body::before {
     color: var(--color-cyan);
 }
 
+/* Icono de altavoz (emoji) */
 #mute-button .speaker-icon::after {
     content: '🔊';
 }
 
+/* Icono cuando está silenciado */
 #mute-button.muted .speaker-icon::after {
     content: '🔇';
 }
 
+/* Pista de navegación en la esquina inferior derecha */
 .nav-hint {
     position: fixed;
     bottom: var(--space-lg);
@@ -1089,7 +1359,10 @@ body::before {
     opacity: 1;
 }
 
-/* Links */
+/* -----------------------------------------
+ * § 6.16. ENLACES GENERALES
+ * ----------------------------------------- */
+
 a {
     color: var(--color-cream);
     text-decoration: none;
@@ -1097,6 +1370,7 @@ a {
     position: relative;
 }
 
+/* Efecto de subrayado que aparece en hover */
 a::after {
     content: '';
     position: absolute;
@@ -1116,16 +1390,25 @@ a:hover::after {
     width: 100%;
 }
 
-/* Utilities */
+/**
+ * =============================================================================
+ * § 7. UTILIDADES Y ACCESIBILIDAD
+ * =============================================================================
+ * Clases de ayuda para visibilidad, accesibilidad y otros fines.
+ */
+
+/* Oculta un elemento completamente */
 .hidden {
     display: none !important;
 }
 
+/* Resalta texto con el color de acento */
 .highlight {
     color: var(--color-cyan);
     font-weight: normal;
 }
 
+/* Mensaje de error para contenido multimedia no cargado */
 .media-error {
     color: var(--color-gray);
     text-align: center;
@@ -1133,13 +1416,13 @@ a:hover::after {
     font-style: italic;
 }
 
-/* Lazy Loading */
+/* Animación de placeholder para imágenes con carga diferida (lazy loading) */
 img[loading="lazy"] {
     background-size: 200% 100%;
     animation: imagePlaceholder 1.5s ease-in-out infinite;
 }
 
-/* Accessibility */
+/* Accesibilidad: Oculta contenido visualmente pero lo mantiene para lectores de pantalla */
 .sr-only {
     position: absolute;
     width: 1px;
@@ -1152,14 +1435,21 @@ img[loading="lazy"] {
     border: 0;
 }
 
-/* Focus Styles */
+/* Estilos de foco visibles para mejorar la accesibilidad */
 button:focus-visible,
 a:focus-visible {
     outline: 2px solid var(--color-cyan);
     outline-offset: 2px;
 }
 
-/* Animations */
+/**
+ * =============================================================================
+ * § 8. ANIMACIONES
+ * =============================================================================
+ * Definiciones de @keyframes para todas las animaciones utilizadas.
+ */
+
+/* Animación de "encendido" de la pantalla */
 @keyframes bootUp {
     0% {
         opacity: 0;
@@ -1176,31 +1466,37 @@ a:focus-visible {
     }
 }
 
+/* Animación simple de aparición gradual */
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
 }
 
+/* Animación simple de desvanecimiento */
 @keyframes fadeOut {
     from { opacity: 1; }
     to { opacity: 0; }
 }
 
+/* Animación de brillo para el título */
 @keyframes titleGlow {
     from { text-shadow: 0 0 10px var(--color-cyan); }
     to { text-shadow: 0 0 20px var(--color-cyan), 0 0 30px var(--color-cyan); }
 }
 
+/* Animación de parpadeo para el prompt */
 @keyframes promptBlink {
     0%, 50%, 100% { opacity: 1; }
     25%, 75% { opacity: 0.7; }
 }
 
+/* Animación de pulso para loaders */
 @keyframes pulse {
     0%, 100% { opacity: 0.3; }
     50% { opacity: 1; }
 }
 
+/* Animación de despliegue hacia abajo */
 @keyframes slideDown {
     from {
         opacity: 0;
@@ -1208,25 +1504,29 @@ a:focus-visible {
     }
     to {
         opacity: 1;
-        max-height: 500px;
+        max-height: 500px; /* Suficientemente grande para el contenido */
     }
 }
 
+/* Animación de brillo para el arte ASCII */
 @keyframes asciiGlow {
     0%, 100% { opacity: 0.6; filter: brightness(1); }
     50% { opacity: 1; filter: brightness(1.2); }
 }
 
+/* Animación de pulso para iconos */
 @keyframes iconPulse {
     0%, 100% { transform: scale(1); opacity: 0.8; }
     50% { transform: scale(1.05); opacity: 1; }
 }
 
+/* Animación de pulso para los puntos de la línea de tiempo */
 @keyframes pulseDot {
     0%, 100% { transform: scale(1); opacity: 1; }
     50% { transform: scale(1.2); opacity: 0.8; }
 }
 
+/* Animación de aparición de la ventana modal */
 @keyframes slideDownModal {
     from {
         transform: translateY(-50px);
@@ -1238,6 +1538,7 @@ a:focus-visible {
     }
 }
 
+/* Animación de zoom para el lightbox */
 @keyframes zoomIn {
     from {
         transform: scale(0.8);
@@ -1249,18 +1550,27 @@ a:focus-visible {
     }
 }
 
+/* Animación para el fondo de imágenes en carga */
 @keyframes imagePlaceholder {
     0% { background-position: 200% 0; }
     100% { background-position: -200% 0; }
 }
 
+
 .videos-container {
- 
     margin-bottom: var(--space-xl); /* 30px de espacio */
 }
 
 
-/* Media Queries */
+/**
+ * =============================================================================
+ * § 9. MEDIA QUERIES Y DISEÑO RESPONSIVE
+ * =============================================================================
+ * Ajustes para diferentes tamaños de pantalla, preferencias de usuario y
+ * otros contextos de visualización (impresión).
+ */
+
+/* Preferencia de movimiento reducido: desactiva animaciones y transiciones */
 @media (prefers-reduced-motion: reduce) {
     * {
         animation-duration: 0.01ms !important;
@@ -1270,6 +1580,7 @@ a:focus-visible {
     }
 }
 
+/* Preferencia de alto contraste: ajusta los colores para mayor legibilidad */
 @media (prefers-contrast: high) {
     :root {
         --color-cyan: #00ffff;
@@ -1284,19 +1595,21 @@ a:focus-visible {
     }
 }
 
+/* Detección de dispositivos táctiles sin hover preciso */
 @media (hover: none) and (pointer: coarse) {
     .nav-category,
     .nav-project {
-        padding: 12px 0;
+        padding: 12px 0; /* Aumenta el área táctil */
     }
     
     .gallery-item:hover,
     .approach-item:hover,
     .service-card:hover {
-        transform: none;
+        transform: none; /* Desactiva transformaciones en hover */
     }
 }
 
+/* Estilos para impresión */
 @media print {
     body {
         background: white;
@@ -1309,12 +1622,15 @@ a:focus-visible {
     }
     
     .no-print {
-        display: none !important;
+        display: none !important; /* Oculta elementos no necesarios para imprimir */
     }
 }
 
-/* Responsive Design */
+/* -----------------------------------------
+ * § 9.1. DISEÑO RESPONSIVE PARA MÓVILES (hasta 768px)
+ * ----------------------------------------- */
 @media (max-width: 768px) {
+    /* Ajustes generales de fuente y layout */
     :root {
         --font-size-base: 16px;
     }
@@ -1327,13 +1643,14 @@ a:focus-visible {
         display: block;
         min-height: 100vh;
         -webkit-text-size-adjust: 100%;
-        -webkit-tap-highlight-color: transparent;
+        -webkit-tap-highlight-color: transparent; /* Evita el destello al tocar enlaces */
     }
     
     body::before {
-        display: none;
+        display: none; /* Oculta el efecto de scanlines */
     }
     
+    /* El monitor ahora ocupa toda la pantalla */
     #monitor {
         width: 100%;
         min-height: 100vh;
@@ -1356,6 +1673,7 @@ a:focus-visible {
         box-shadow: none;
     }
     
+    /* Ajustes en la pantalla de bienvenida */
     #welcome-screen {
         min-height: 100vh;
         padding: var(--space-lg);
@@ -1379,9 +1697,10 @@ a:focus-visible {
         padding: var(--space-md) var(--space-xl);
         border-width: 3px;
         border-radius: var(--border-radius);
-        touch-action: manipulation;
+        touch-action: manipulation; /* Mejora la respuesta táctil */
     }
     
+    /* Layout del portafolio se vuelve de una sola columna */
     #portfolio-layout {
         padding: 0;
         min-height: 100vh;
@@ -1425,7 +1744,7 @@ a:focus-visible {
     }
     
     .dynamic-panel::before {
-        display: none;
+        display: none; /* Oculta la rejilla de fondo */
     }
     
     .ascii-container {
@@ -1451,9 +1770,10 @@ a:focus-visible {
         width: 100%;
         padding: var(--space-md);
         overflow-y: visible;
-        margin-bottom: 60px;
+        margin-bottom: 60px; /* Espacio para UI fija en la parte inferior */
     }
     
+    /* Ajustes de navegación en móvil */
     .breadcrumb {
         font-size: 0.85rem;
         margin-bottom: var(--space-md);
@@ -1469,7 +1789,7 @@ a:focus-visible {
     }
     
     .nav-category:active {
-        background: rgba(87, 241, 231, 0.1);
+        background: rgba(87, 241, 231, 0.1); /* Feedback al tocar */
     }
     
     .nav-project-list {
@@ -1487,6 +1807,7 @@ a:focus-visible {
         background: rgba(87, 241, 231, 0.1);
     }
     
+    /* Contenido de proyecto en móvil */
     .project-content h2 {
         font-size: 1.6rem;
         margin-bottom: var(--space-md);
@@ -1494,10 +1815,10 @@ a:focus-visible {
     }
     
     .project-meta {
-    padding: var(--space-md);
-    gap: var(--space-sm);
-    grid-template-columns: 1fr; 
-}
+        padding: var(--space-md);
+        gap: var(--space-sm);
+        grid-template-columns: 1fr; /* Una sola columna para metadatos */
+    }
     
     .meta-item {
         padding: var(--space-sm);
@@ -1511,6 +1832,7 @@ a:focus-visible {
         font-size: 1rem;
     }
     
+    /* Galerías en móvil */
     .project-gallery {
         grid-template-columns: repeat(2, 1fr);
         gap: var(--space-sm);
@@ -1536,6 +1858,7 @@ a:focus-visible {
         overflow: hidden;
     }
     
+    /* Tabs en móvil */
     .tab-navigation {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -1554,9 +1877,9 @@ a:focus-visible {
         min-width: auto;
         background: var(--color-black);
         border: 1px solid var(--color-gray-dark);
-        
     }
     
+    /* Ajuste para pantallas muy pequeñas */
     @media (max-width: 480px) {
         .tab-navigation {
             grid-template-columns: 1fr;
@@ -1570,6 +1893,7 @@ a:focus-visible {
         }
     }
     
+    /* Timeline en móvil */
     .timeline-container {
         padding-left: var(--space-xl);
     }
@@ -1583,6 +1907,7 @@ a:focus-visible {
         font-size: 1.1rem;
     }
     
+    /* Proceso y Contacto en móvil */
     .process-grid {
         gap: var(--space-md);
     }
@@ -1623,6 +1948,7 @@ a:focus-visible {
         min-width: auto;
     }
     
+    /* Botones externos en móvil */
     .external-link-btn,
     .external-video-link {
         font-size: 1rem;
@@ -1632,9 +1958,10 @@ a:focus-visible {
         border-radius: var(--border-radius);
     }
     
+    /* Modal en móvil */
     .modal-overlay {
         padding: var(--space-lg);
-        align-items: flex-end;
+        align-items: flex-end; /* Aparece desde abajo */
     }
     
     .modal-content {
@@ -1667,6 +1994,7 @@ a:focus-visible {
         border-radius: var(--border-radius);
     }
     
+    /* Lightbox en móvil */
     #lightbox {
         padding: var(--space-lg);
     }
@@ -1677,62 +2005,40 @@ a:focus-visible {
         border-radius: var(--border-radius);
         box-shadow: none;
     }
-    
-    #lightbox-close {
-        position: fixed;
-        top: var(--space-lg);
-        right: var(--space-lg);
-        width: 48px;
-        height: 48px;
-        font-size: 32px;
-        background: rgba(0, 0, 0, 0.8);
-        border: 2px solid var(--color-cream);
+
+    /* Regla base para AMBOS botones de navegación del lightbox en escritorio */
+    .lightbox-prev,
+    .lightbox-next {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: all;
+        background: rgba(0, 0, 0, 0.5);
+        border: 1px solid var(--color-cream);
+        color: var(--color-cream);
+        font-family: var(--font-primary);
+        width: 60px;
+        height: 60px;
         border-radius: 50%;
-        backdrop-filter: blur(10px);
+        cursor: pointer;
+        transition: all var(--transition-speed) var(--transition-easing);
+        user-select: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3.5rem;
+        line-height: 1;
     }
     
-    /* El contenedor ahora solo se encarga de mostrar/ocultar, no de posicionar. */
-.lightbox-nav {
-    pointer-events: none; /* Mantenemos esto para que no interfiera */
-}
-
-/* Regla base para AMBOS botones */
-.lightbox-prev,
-.lightbox-next {
-    /* ESTA ES LA CLAVE: Posicionamiento absoluto respecto a la pantalla */
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-
-    /* Estilos visuales que ya tenías y hemos corregido */
-    pointer-events: all;
-    background: rgba(0, 0, 0, 0.5);
-    border: 1px solid var(--color-cream);
-    color: var(--color-cream);
-    font-family: var(--font-primary);
-    width: 60px;
-    height: 60px;
-    border-radius: 50%; /* Aseguramos que sean redondos */
-    cursor: pointer;
-    transition: all var(--transition-speed) var(--transition-easing);
-    user-select: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 3.5rem;
-    line-height: 1; /* Para un centrado de texto más fiable */
-}
-
-/* Posicionamos el botón de la IZQUIERDA */
-.lightbox-prev {
-    left: var(--space-2xl); /* Espacio desde el borde izquierdo */
-}
-
-/* Posicionamos el botón de la DERECHA */
-.lightbox-next {
-    right: var(--space-2xl); /* Espacio desde el borde derecho */
-}
+    .lightbox-prev {
+        left: var(--space-2xl);
+    }
     
+    .lightbox-next {
+        right: var(--space-2xl);
+    }
+    
+    /* UI fija en móvil */
     #mute-button {
         position: fixed;
         bottom: var(--space-lg);
@@ -1752,9 +2058,10 @@ a:focus-visible {
     }
     
     .nav-hint {
-        display: none !important;
+        display: none !important; /* Oculta la pista de navegación */
     }
     
+    /* Mejoras de legibilidad en texto */
     p {
         line-height: 1.6;
         margin-bottom: 12px;
@@ -1777,44 +2084,7 @@ a:focus-visible {
         font-size: 0.85rem;
     }
     
-    .services-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: var(--space-sm);
-    }
-    
-    .service-card {
-        padding: var(--space-md);
-        border-radius: var(--border-radius);
-    }
-    
-    .service-icon {
-        font-size: 1.8rem;
-    }
-    
-    .approach-item {
-        padding: var(--space-md);
-        border-radius: var(--border-radius);
-        margin-bottom: var(--space-sm);
-    }
-    
-    .initial-loader {
-        padding: var(--space-2xl);
-    }
-    
-    .brandbook-preview {
-        max-width: 100%;
-        border-radius: var(--border-radius);
-        overflow: hidden;
-    }
-    
-    .skills-visual {
-        margin: var(--space-lg) 0;
-    }
-    
-    #skills-radar {
-        max-width: 280px;
-    }
-    
+    /* Desactivar transformaciones en hover en móvil */
     .nav-category:hover,
     .nav-project:hover,
     .gallery-item:hover,
@@ -1826,6 +2096,7 @@ a:focus-visible {
         transform: none;
     }
     
+    /* Estilos de foco más prominentes para móvil */
     button:focus-visible,
     a:focus-visible,
     .nav-category:focus-visible,
@@ -1834,6 +2105,7 @@ a:focus-visible {
         outline-offset: 2px;
     }
     
+    /* Compatibilidad con 'safe-area' en iPhones */
     #portfolio-layout {
         padding-top: env(safe-area-inset-top);
         padding-bottom: env(safe-area-inset-bottom);
@@ -1847,9 +2119,13 @@ a:focus-visible {
     .lightbox-nav {
         bottom: calc(var(--space-xl) + env(safe-area-inset-bottom));
     }
-}
+} /* Fin de @media (max-width: 768px) */
 
-/* Prevent layout shifts */
+/* -----------------------------------------
+ * § 9.2. AJUSTES FINALES Y CLASES MISCELÁNEAS
+ * ----------------------------------------- */
+
+/* Evita saltos de layout (Layout Shift) al cargar imágenes/videos */
 img,
 video {
     width: 100%;
@@ -1857,27 +2133,27 @@ video {
     display: block;
 }
 
-/* Smooth scroll for panels */
+/* Scroll suave para los paneles y compatibilidad con iOS */
 #panel-left,
 #panel-right {
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
 }
-/* Estilos para los tabs ASCII */
+
+/* Estilos para el arte ASCII en los botones de pestañas */
 .tab-button .tab-ascii-top,
 .tab-button .tab-ascii-middle,
 .tab-button .tab-ascii-bottom {
     display: block;
     line-height: 1;
     font-size: 0.9rem;
-    
 }
 
 .tab-button .tab-mobile {
-    display: none;
+    display: none; /* Oculto en escritorio */
 }
 
-/* En móvil, ocultar ASCII y mostrar versión simple */
+/* En móvil, oculta el ASCII y muestra texto simple */
 @media (max-width: 768px) {
     .tab-button .tab-ascii-top,
     .tab-button .tab-ascii-middle,
@@ -1907,7 +2183,7 @@ video {
         border-color: var(--color-cyan);
     }
     
-    /* Indicadores ASCII simplificados */
+    /* Indicadores de tab activa simplificados para móvil */
     .tab-button.active .tab-mobile::before {
         content: '[ ';
         color: var(--color-cyan);
@@ -1919,7 +2195,7 @@ video {
     }
 }
 
-/* Para tablets en modo landscape */
+/* Ajuste para tablets en modo horizontal */
 @media (min-width: 769px) and (max-width: 1024px) {
     .tab-button .tab-ascii-top,
     .tab-button .tab-ascii-middle,
@@ -1928,14 +2204,19 @@ video {
     }
 }
 
+/* Utilidad para un renderizado de imagen más suave cuando sea necesario */
 .smooth-rendering {
     image-rendering: auto;
 }
 
+/* Utilidad para quitar sombras */
 .no-shadow {
     box-shadow: none !important;
 }
 
+/* -----------------------------------------
+ * § 9.3. SECUENCIA DE ARRANQUE (BOOT)
+ * ----------------------------------------- */
 .boot-container {
     position: absolute;
     top: 0;
@@ -1986,6 +2267,7 @@ video {
     color: #57f1e7;
 }
 
+/* Cursor parpadeante de la terminal */
 .boot-cursor {
     position: absolute;
     color: var(--color-cyan);
@@ -1999,6 +2281,7 @@ video {
     opacity: 1;
 }
 
+/* Botón para saltar la animación de arranque */
 .boot-skip-btn {
     position: absolute;
     bottom: var(--space-xl);
@@ -2040,6 +2323,7 @@ video {
     display: none;
 }
 
+/* Efecto de scanlines para la pantalla de arranque */
 .boot-container::before {
     content: "";
     position: absolute;
@@ -2059,6 +2343,7 @@ video {
     animation: scanlines 8s linear infinite;
 }
 
+/* Efecto de "descifrado" de texto */
 .decrypt-text {
     visibility: hidden;
 }
@@ -2067,6 +2352,7 @@ video {
     visibility: visible;
 }
 
+/* Animaciones específicas de la secuencia de arranque */
 @keyframes bootFadeIn {
     from {
         opacity: 0;
@@ -2130,50 +2416,40 @@ video {
     50% { transform: translateX(3px); }
 }
 
+/* Secuencia de arranque en móvil */
 @media (max-width: 768px) {
     .boot-container {
         padding: 15px;
-        overflow: visible !important; /* Permitir que se vea todo */
-        height: 100vh !important; /* Altura completa */
+        overflow: visible !important;
+        height: 100vh !important;
     }
     
     .boot-content {
         width: 100%;
-        height: auto !important; /* Altura automática */
-        overflow: visible !important; /* No cortar contenido */
+        height: auto !important;
+        overflow: visible !important;
     }
     
     .boot-lines {
         gap: 0.3em;
         max-width: 100%;
         overflow: visible !important;
-        min-height: 200px; /* Altura mínima */
+        min-height: 200px;
     }
     
     .boot-line {
         font-size: 0.75rem;
         line-height: 1.3;
         color: var(--color-cyan) !important;
-        margin-bottom: 5px; /* Espacio entre líneas */
-        display: block !important; /* Asegurar que sea bloque */
+        margin-bottom: 5px;
+        display: block !important;
     }
     
-    .boot-line.system {
-        color: var(--color-cream) !important;
-    }
+    .boot-line.system { color: var(--color-cream) !important; }
+    .boot-line.success { color: #f9f9d3 !important; }
+    .boot-line.loading { color: #57f1e7 !important; }
     
-    .boot-line.success {
-        color: #f9f9d3 !important;
-    }
-    
-    .boot-line.loading {
-        color: #57f1e7 !important;
-    }
-    
-    /* Ocultar cursor en móvil */
-    .boot-cursor {
-        display: none !important;
-    }
+    .boot-cursor { display: none !important; }
     
     .boot-skip-btn {
         position: fixed;
@@ -2205,6 +2481,7 @@ video {
     }
 }
 
+/* Ajustes adicionales para pantallas muy pequeñas */
 @media (max-width: 480px) {
     .boot-line {
         font-size: 0.7rem;
@@ -2213,13 +2490,7 @@ video {
     .boot-content {
         padding-top: 10px;
     }
-}
 
-@media (max-width: 480px) {
-    .boot-line {
-        font-size: 0.7rem;
-    }
-    
     .boot-skip-btn {
         font-size: 0.75rem;
         padding: 8px 16px;
@@ -2227,57 +2498,198 @@ video {
     }
 }
 
-@media (max-width: 480px) {
-    .boot-line {
-        font-size: 0.7rem;
-    }
-}
-
+/* -----------------------------------------
+ * § 9.4. AJUSTES FINALES LIGHTBOX EN MÓVIL
+ * ----------------------------------------- */
 @media (max-width: 768px) {
-    /* ... tu código existente ... */
-    
     /* Ajustar botones de navegación del lightbox */
     .lightbox-prev,
     .lightbox-next {
-        width: 40px !important;      /* Más pequeños */
+        width: 40px !important;
         height: 40px !important;
-        font-size: 1.5rem !important; /* Texto más pequeño */
+        font-size: 1.5rem !important;
         background: rgba(0, 0, 0, 0.7) !important;
         border: 1px solid var(--color-gray-dark) !important;
     }
     
-    /* Posicionar mejor los botones */
     .lightbox-prev {
-        left: 10px !important;  /* Más pegado al borde */
+        left: 15px !important;
     }
     
     .lightbox-next {
-        right: 10px !important; /* Más pegado al borde */
+        right: 15px !important;
     }
     
-    /* En hover no hacer zoom en móvil */
     .lightbox-prev:hover,
     .lightbox-next:hover {
         background: var(--color-cyan) !important;
         color: var(--color-black) !important;
         border-color: var(--color-cyan) !important;
-        transform: translateY(-50%) !important; /* Mantener centrado */
+        transform: translateY(-50%) !important;
     }
     
-    /* Para touch/active en móvil */
     .lightbox-prev:active,
     .lightbox-next:active {
         transform: translateY(-50%) scale(0.9) !important;
         background: var(--color-cyan) !important;
         opacity: 0.8;
     }
+}
+
+/* -----------------------------------------
+ * § 9.5. SCROLL PARA IMÁGENES ALTAS EN LIGHTBOX
+ * ----------------------------------------- */
+
+/* Contenedor que permite el scroll vertical para imágenes altas */
+.lightbox-scroll-container {
+    max-height: 85vh;
+    overflow-y: auto;
+    position: relative;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-cyan) rgba(255, 255, 255, 0.1);
+}
+
+.lightbox-scroll-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.lightbox-scroll-container::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.lightbox-scroll-container::-webkit-scrollbar-thumb {
+    background: var(--color-cyan);
+    border-radius: 4px;
+}
+
+/* Indicadores visuales de que se puede hacer scroll */
+.scroll-indicator-top,
+.scroll-indicator-bottom {
+    bottom: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    width: 100%;
+    left: 0;
+}
+
+.scroll-indicator-top {
+    top: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+}
+
+.scroll-indicator-bottom {
+    bottom: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+}
+
+.scroll-indicator-top::after,
+.scroll-indicator-bottom::after {
+    content: '⌄';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--color-cyan);
+    font-size: 24px;
+    animation: bounce 1.5s ease-in-out infinite;
+}
+
+.scroll-indicator-top::after {
+    content: '⌃';
+    top: 5px;
+}
+
+.scroll-indicator-bottom::after {
+    bottom: 5px;
+}
+
+.scroll-indicator-top.visible,
+.scroll-indicator-bottom.visible {
+    opacity: 1;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(5px); }
+}
+
+/* Ajustes de tamaño por tipo de imagen en el lightbox */
+#lightbox-media.square-image {
+    max-width: min(80vw, 80vh);
+    max-height: min(80vw, 80vh);
+}
+
+#lightbox-media.wide-image {
+    max-width: 90vw;
+    max-height: 70vh;
+}
+
+/* Asegura que los botones de navegación no se superpongan con el scrollbar */
+.lightbox-nav {
+    max-width: calc(100vw - 40px);
+}
+
+/* -----------------------------------------
+ * § 9.6. BOTÓN DE CERRAR LIGHTBOX
+ * ----------------------------------------- */
+#lightbox-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 30px !important;
+    height: 30px !important;
+    background-color: #000000 !important;
+    border: 3px solid #f9f9d3 !important;
+    border-radius: 50% !important;
+    color: #f9f9d3 !important;
+    font-size: 40px !important;
+    font-weight: bold !important;
+    font-family: VT323, sans-serif !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 9999 !important;
+    line-height: 1 !important;
+    text-align: center !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5) !important;
+    user-select: none !important;
+}
+
+#lightbox-close:hover {
+    transform: rotate(90deg) !important;
+    color: #57f1e7 !important;
+    border-color: #57f1e7 !important;
+    background-color: #0d0d0d !important;
+}
+
+#lightbox-close::before {
+    content: '' !important;
+    display: block !important;
+    margin-top: -2px !important;
+}
+
+#lightbox-close * {
+    display: none !important;
+}
+
+/* ===== BOOT SEQUENCE MÓVIL EXTRA GRANDE ===== */
+@media (max-width: 768px) {
+    .boot-line {
+        font-size: 1.3rem !important;
+        line-height: 1.6 !important;
+        margin-bottom: 10px !important;
+        letter-spacing: 0.03em !important;
+    }
     
-    /* El botón de cerrar también más pequeño */
-    #lightbox-close {
-        width: 40px !important;
-        height: 40px !important;
-        font-size: 24px !important;
-        top: 10px !important;
-        right: 10px !important;
+    .boot-line.system {
+        font-size: 1.4rem !important;
+        font-weight: bold !important;
+    }
+    
+    .boot-lines {
+        gap: 0.6em !important;
+        min-height: 300px !important; /* Aumentado de 200px */
     }
 }
