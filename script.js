@@ -325,7 +325,7 @@ const portfolioData = [
                         <div class="contact-item"><span class="contact-label">EMAIL</span><a href="mailto:julioerty@gmail.com">julioerty@gmail.com</a></div>
                         <div class="contact-item"><span class="contact-label">TELÉFONO</span><a href="tel:+529833077150">+52 983 307 7150</a></div>
                         <div class="contact-item"><span class="contact-label">BEHANCE</span><a href="https://behance.net/juliomorcillo" target="_blank" rel="noopener noreferrer">behance.net/juliomorcillo</a></div>
-                        <div class="contact-item"><span class="contact-label">LINKEDIN</span><a href="https://linkedin.com/in/juliomorcillo" target="_blank" rel="noopener noreferrer">linkedin.com/in/juliomorcillo</a></div>
+                        <div class="contact-item"><span class="contact-label">LINKEDIN</span><a href="www.linkedin.com/in/julio-a-morcillo-baquedano-559171362" target="_blank" rel="noopener noreferrer">linkedin.com/in/juliomorcillo</a></div>
                         <div class="contact-item"><span class="contact-label">UBICACIÓN</span><span>Mérida, Yucatán, México</span></div>
                     </div>
                 </section>
